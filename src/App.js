@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Do Not Learn React
+          Home of the AutoCanvas ROI Calculator
         </a>
       </header>
     </div>
