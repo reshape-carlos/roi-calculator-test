@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Home of the AutoCanvas ROI Calculator
+          Future home of the AutoCanvas ROI Calculator
         </a>
       </header>
     </div>
