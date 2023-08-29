@@ -59,16 +59,15 @@ const mainTheme = createTheme ({
   // }
 });
 
-
 const defaultValues = {
   partsPerHour: 1,
   shiftsPerDay: 2,
   operatorPerShift: 1,
   roi: 0,
-  facilityType: "Automotive",
-  facilityLocation: "US Midwest",
-  whatIsProduced: "",
-  whatIsUtilized: "",
+  facilityType: "automotive",
+  facilityLocation: "us-midwest",
+  whatIsProduced: "cars",
+  whatIsUtilized: "robots",
   operatorRate: 15,
   operatorCount: 10,
   insurance: 0,
@@ -94,18 +93,19 @@ function App() {
   const [formValues, setFormValues] = React.useState(defaultValues);
   
   const handleInputChange = (e) => {
-    console.log("Input changed");
+    // console.log("Input changed");
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
       [name]: value,
     });
-    console.log(formValues);
+    // console.log(formValues);
   };
 
   const handleSubmit = () => {
     formValues.roiValue = formValues.shiftsPerDay*formValues.partsPerHour;
     console.log("ROI is", formValues.roiValue)
+    console.log(formValues);
   }
 
   return (
@@ -173,9 +173,8 @@ function App() {
 
             <Grid item xs={3}>
               <TextField
-                id="whatIsProduced"
+                name="whatIsProduced"
                 variant="standard"
-                value={formValues.whatIsProduced}
                 onChange={handleInputChange}
                 size="small"
               />
@@ -189,8 +188,9 @@ function App() {
 
             <Grid item xs={3}>
               <TextField
-                id="whatIsUtilized"
+                name="whatIsUtilized"
                 variant="standard"
+                
                 onChange={handleInputChange}
                 size="small"
               />
@@ -215,7 +215,7 @@ function App() {
 
             <Grid item xs={1}>
               <TextField
-                id="partsPerHour"
+                name="partsPerHour"
                 variant="standard"
                 type="number"
                 onChange={handleInputChange}
@@ -324,7 +324,7 @@ function App() {
             
             <Grid item xs={1}>
               <TextField
-                id="operatorRate"
+                name="operatorRate"
                 variant="standard"
                 type="number"
                 onChange={handleInputChange}
@@ -350,7 +350,7 @@ function App() {
 
             <Grid item xs={2}>
               <TextField
-                id="operatorCount"
+                name="operatorCount"
                 variant="standard"
                 type="number"
                 onChange={handleInputChange}
@@ -413,7 +413,7 @@ function App() {
           <Grid id="tenth-row" container justify="flex-end" alignItems="center" spacing={1}>
             <Grid item xs={2}>
               <TextField
-                id="insurance"
+                name="insurance"
                 variant="standard"
                 type="number"
                 onChange={handleInputChange}
@@ -439,7 +439,7 @@ function App() {
 
             <Grid item xs={2}>
               <TextField
-                id="hiringCost"
+                name="hiringCost"
                 variant="standard"
                 type="number"
                 onChange={handleInputChange}
