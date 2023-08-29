@@ -1,4 +1,5 @@
 import * as React from 'react';
+import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -21,17 +22,52 @@ import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
 import Select from "@mui/material/Select";
 import Slider from "@mui/material/Slider";
+import Paper from '@mui/material/Paper';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
+
+const mainTheme = createTheme ({
+  // box: {
+  //   display: 'grid',
+  //   bgcolor: (theme) =>
+  //     theme.palette.mode === 'dark' ? '#101010' : 'grey.100',
+  //   color: (theme) =>
+  //     theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
+  //   border: '1px solid',
+  //   borderColor: (theme) =>
+  //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
+  //   p: 1,
+  //   borderRadius: 2,
+  //   fontSize: '0.875rem',
+  //   fontWeight: '700',
+  // },
+  // container: {
+  //   display: "grid",
+  //   gridTemplateColumns: "repeat(12, 1fr)",
+  //   gridGap: `${theme.spacing.unit * 3}px`
+  // },
+  // paper: {
+  //   padding: theme.spacing.unit,
+  //   textAlign: "center",
+  //   color: theme.palette.text.secondary,
+  //   whiteSpace: "nowrap",
+  //   marginBottom: theme.spacing.unit
+  // },
+  // divider: {
+  //   margin: `${theme.spacing.unit * 2}px 0`
+  // }
+});
 
 
 const defaultValues = {
   partsPerHour: 1,
   shiftsPerDay: 2,
+  operatorPerShift: 1,
   roi: 0,
-  name: "",
-  age: 0,
-  gender: "",
-  os: "",
-  favoriteNumber: 0,
+  facilityType: "",
+  whatIsProduced: "",
+  whatIsUtilized: "",
 };
 
 
@@ -66,74 +102,295 @@ function App() {
     console.log("ROI is", formValues.roiValue)
   }
 
+  return (
+    <React.Fragment>
+      
+      <CssBaseline />
+      <Container maxWidth="sm">
 
-  return (    
-    <Container maxWidth="md">
-      <Box sx={{ my: 4 }}>
-
-        <Typography variant="h3" color="text.primary" align="center">
+        <Typography variant="h4" color="initial" align="center">
           AutoCanvas ROI Calculator
         </Typography>
+
+        <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(4, 1fr)' }}>
+          
+          {/* ----------------------------- */}
+          <Grid id="first-row" container justify="flex-end" alignItems="center" spacing={1}>
+              
+            <Grid item xs={3}>
+              <Typography>
+                I have a tier 1
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+              <FormControl size="small" variant="standard">
+                <Select
+                  name="facilityType"
+                  value={formValues.facilityType}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem key="automotive" value="automotive">
+                    Automotive
+                  </MenuItem>
+                  <MenuItem key="plastic" value="plastic">
+                    Plastic
+                  </MenuItem>
+                  <MenuItem key="metal " value="metal">
+                    Metal
+                  </MenuItem>
+                </Select>
+              </FormControl>
+              
+            </Grid>
+
+            <Grid item xs={4}>
+              <Typography>
+                facility
+              </Typography>
+            </Grid>
+
+          </Grid>
+
+          {/* <Grid>
+            <Container size="small"/>
+          </Grid> */}
+
+          {/* ----------------------------- */}
+          <Grid id="second-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={3}>
+              <Typography>
+                that produces
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+              <TextField
+                id="whatIsProduced"
+                variant="standard"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={2}>
+              <Typography>
+                utilizing
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+              <TextField
+                id="whatIsUtilized"
+                variant="standard"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={1}>
+              <Typography>
+                .
+              </Typography>
+            </Grid>
+            
+          </Grid>
+
+          {/* ----------------------------- */}
+          <Grid id="third-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={3}>
+              <Typography>
+                I produce
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+              <TextField
+                id="partsPerHour"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <Typography>
+                parts per hour.
+              </Typography>
+            </Grid>
+          </Grid>          
+
+          {/* ----------------------------- */}
+          <Grid id="fourth-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={3}>
+              <Typography>
+                I run
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+
+              <FormControl size="small" variant="standard">
+                <Select
+                  name="shiftsPerDay"
+                  value={formValues.shiftsPerDay}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem key="one" value="1">
+                    1
+                  </MenuItem>
+                  <MenuItem key="two" value="2">
+                    2
+                  </MenuItem>
+                  <MenuItem key="three" value="3">
+                    3
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={2}>
+              <Typography>
+                shifts.
+              </Typography>
+            </Grid>
+          </Grid>
+
+          {/* ----------------------------- */}
+          <Grid id="fifth-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={3}>
+              <Typography>
+                This task requires
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+
+              <FormControl size="small" variant="standard">
+                <Select
+                  name="operatorPerShift"
+                  value={formValues.operatorPerShift}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem key="one" value="1">
+                    1
+                  </MenuItem>
+                  <MenuItem key="two" value="2">
+                    2
+                  </MenuItem>
+                  <MenuItem key="three" value="3">
+                    3
+                  </MenuItem>
+                  <MenuItem key="four" value="4">
+                    4
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={4}>
+              <Typography>
+                operator(s) per shifts.
+              </Typography>
+            </Grid>
+          </Grid>
+
+          {/* ----------------------------- */}
+          <Grid id="last-row" container spacing={1}>
+            <Grid item xs justify="flex-end" alignItems="center" align="center" >
+              <Button variant="contained" size="small" color="primary" type="submit" onClick={handleSubmit}>
+              Get ROI Results
+              </Button>
+            </Grid>
+          
+
+          </Grid>
+          
+
+        </Box>
+
+        <Copyright />
+
+      </Container>
+      
+    </React.Fragment>
+  );
+
+
+//   return (    
+//     <Container maxWidth="md">
+//       <Box sx={{ my: 4 }}>
+
+//         <Typography variant="h3" color="text.primary" align="center">
+//           AutoCanvas ROI Calculator
+//         </Typography>
         
         
-          <TextField 
-            id="parts-per-hour-input"
-            name="partsPerHour"
-            label="Parts per hour"
-            type="number"
-            value={formValues.partsPerHour}
-            onChange={handleInputChange}
-          />
+//           <TextField 
+//             id="parts-per-hour-input"
+//             name="partsPerHour"
+//             label="Parts per hour"
+//             type="number"
+//             value={formValues.partsPerHour}
+//             onChange={handleInputChange}
+//           />
         
-          <TextField
-            id="shifts-input"
-            name="shiftsPerDay"
-            label="Shifts per day"
-            type="number"
-            value={formValues.shiftsPerDay}
-            onChange={handleInputChange}
-          />
+//           <TextField
+//             id="shifts-input"
+//             name="shiftsPerDay"
+//             label="Shifts per day"
+//             type="number"
+//             value={formValues.shiftsPerDay}
+//             onChange={handleInputChange}
+//           />
         
-{/* 
-          <FormControl>
-            <Select
-              name="os"
-              value={formValues.os}
-              onChange={handleInputChange}
-            >
-              <MenuItem key="mac" value="mac">
-                Mac
-              </MenuItem>
-              <MenuItem key="windows" value="windows">
-                Windows
-              </MenuItem>
-              <MenuItem key="linux " value="linux">
-                Linux
-              </MenuItem>
-            </Select>
-          </FormControl> */}
+// {/* 
+//           <FormControl>
+//             <Select
+//               name="os"
+//               value={formValues.os}
+//               onChange={handleInputChange}
+//             >
+//               <MenuItem key="mac" value="mac">
+//                 Mac
+//               </MenuItem>
+//               <MenuItem key="windows" value="windows">
+//                 Windows
+//               </MenuItem>
+//               <MenuItem key="linux " value="linux">
+//                 Linux
+//               </MenuItem>
+//             </Select>
+//           </FormControl> */}
        
         
-        <Button variant="contained" color="primary" type="submit" onClick={handleSubmit}>
-          Get ROI Results
-        </Button>
+//         <Button variant="contained" color="primary" type="submit" onClick={handleSubmit}>
+//           Get ROI Results
+//         </Button>
 
-        <TextField
-          id="roi-output"
-          name="roi"
-          label="ROI"
-          type="number"
-          value={formValues.roi}
-          onChange={handleInputChange}
-        />
+//         <TextField
+//           id="roi-output"
+//           name="roi"
+//           label="ROI"
+//           type="number"
+//           value={formValues.roi}
+//           onChange={handleInputChange}
+//         />
 
         
 
-        <ProTip />
-        <Copyright />
-      </Box>
-    </Container>
-  );
+//         <ProTip />
+//         <Copyright />
+//       </Box>
+//     </Container>
+//   );
+
+  
 }
 
 export default App;
