@@ -65,9 +65,14 @@ const defaultValues = {
   shiftsPerDay: 2,
   operatorPerShift: 1,
   roi: 0,
-  facilityType: "",
+  facilityType: "Automotive",
+  facilityLocation: "US Midwest",
   whatIsProduced: "",
   whatIsUtilized: "",
+  operatorRate: 15,
+  operatorCount: 10,
+  insurance: 0,
+  hiringCost: 10000
 };
 
 
@@ -202,13 +207,13 @@ function App() {
           {/* ----------------------------- */}
           <Grid id="third-row" container justify="flex-end" alignItems="center" spacing={1}>
 
-            <Grid item xs={3}>
+            <Grid item xs={2}>
               <Typography>
                 I produce
               </Typography>
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={1}>
               <TextField
                 id="partsPerHour"
                 variant="standard"
@@ -228,13 +233,13 @@ function App() {
           {/* ----------------------------- */}
           <Grid id="fourth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
-            <Grid item xs={3}>
+            <Grid item xs={1}>
               <Typography>
                 I run
               </Typography>
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={1}>
 
               <FormControl size="small" variant="standard">
                 <Select
@@ -257,7 +262,7 @@ function App() {
 
             <Grid item xs={2}>
               <Typography>
-                shifts .
+                shifts.
               </Typography>
             </Grid>
           </Grid>
@@ -265,13 +270,13 @@ function App() {
           {/* ----------------------------- */}
           <Grid id="fifth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
-            <Grid item xs={3}>
+            <Grid item xs={3.5}>
               <Typography>
                 This task requires
               </Typography>
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={1.5}>
 
               <FormControl size="small" variant="standard">
                 <Select
@@ -301,6 +306,153 @@ function App() {
               </Typography>
             </Grid>
           </Grid>
+
+          {/* ----------------------------- */}
+          <Grid id="sixth-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={5.5}>
+              <Typography>
+                The hourly rate of operators is
+              </Typography>
+            </Grid>
+
+            <Grid item xs={0.5}>
+              <Typography>
+                $
+              </Typography>
+            </Grid>
+            
+            <Grid item xs={1}>
+              <TextField
+                id="operatorRate"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <Typography>
+                / hour.
+              </Typography>
+            </Grid>
+          </Grid> 
+
+          {/* ----------------------------- */}
+          <Grid id="seventh-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={3}>
+              <Typography>
+                My facility has
+              </Typography>
+            </Grid>
+
+            <Grid item xs={2}>
+              <TextField
+                id="operatorCount"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <Typography>
+                operators.
+              </Typography>
+            </Grid>
+          </Grid> 
+
+          {/* ----------------------------- */}
+          <Grid id="eighth-row" container justify="flex-end" alignItems="center" spacing={1}>
+              
+            <Grid item xs={3.5}>
+              <Typography>
+                My facility is in the
+              </Typography>
+            </Grid>
+
+            <Grid item xs={4}>
+              <FormControl size="small" variant="standard">
+                <Select
+                  name="facilityLocation"
+                  value={formValues.facilityLocation}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem key="us-east" value="us-east">
+                    US East Coast
+                  </MenuItem>
+                  <MenuItem key="us-midwest" value="us-midwest">
+                    US Midwest
+                  </MenuItem>
+                  <MenuItem key="us-south" value="us-south">
+                    US South
+                  </MenuItem>
+                  <MenuItem key="us-west" value="us-west">
+                    US West Coast
+                  </MenuItem>
+                  
+                </Select>
+              </FormControl>
+              
+            </Grid>
+
+          </Grid>
+
+          {/* ----------------------------- */}
+          <Grid id="ninth-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={10}>
+              <Typography>
+                My OH&S, insurance, sick leave and other alternative personnel costs are approximately 
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid id="tenth-row" container justify="flex-end" alignItems="center" spacing={1}>
+            <Grid item xs={2}>
+              <TextField
+                id="insurance"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <Typography>
+                /year.
+              </Typography>
+            </Grid>
+          </Grid> 
+
+          {/* ----------------------------- */}
+          <Grid id="eleventh-row" container justify="flex-end" alignItems="center" spacing={1}>
+
+            <Grid item xs={4}>
+              <Typography>
+                My HR/hiring costs are
+              </Typography>
+            </Grid>
+
+            <Grid item xs={2}>
+              <TextField
+                id="hiringCost"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <Typography>
+                / year.
+              </Typography>
+            </Grid>
+          </Grid> 
 
           {/* ----------------------------- */}
           <Grid id="last-row" container spacing={1}>
