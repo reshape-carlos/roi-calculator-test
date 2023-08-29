@@ -257,7 +257,7 @@ function App() {
 
             <Grid item xs={2}>
               <Typography>
-                shifts.
+                shifts .
               </Typography>
             </Grid>
           </Grid>
