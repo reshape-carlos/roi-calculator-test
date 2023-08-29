@@ -89,6 +89,7 @@ function App() {
   const [formValues, setFormValues] = React.useState(defaultValues);
   
   const handleInputChange = (e) => {
+    console.log("Input changed");
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
@@ -169,6 +170,7 @@ function App() {
               <TextField
                 id="whatIsProduced"
                 variant="standard"
+                value={formValues.whatIsProduced}
                 onChange={handleInputChange}
                 size="small"
               />
