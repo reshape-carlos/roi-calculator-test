@@ -31,6 +31,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import Divider from '@mui/material/Divider';
 import BottomNavigation from '@mui/material/BottomNavigation';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
@@ -55,7 +60,7 @@ const defaultValues = {
   operationCost: 0,
   cashflowYear1: 0,
   cashflowYear5: 0,
-  operationCost: 0
+  roiData: []
 };
 
 var visibilityState = {
@@ -110,40 +115,102 @@ function App() {
     // console.log(formValues);
   };
 
+  function formatAsCurrency(num) {
+    num = Number(num);
+    if(num>=0){
+      return '$' + num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    } else if(num<0){
+      return '-' + '$' + (-num).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    } else {
+      return ""
+    }
+ }
+
   const inflation = 0.02;
   const period = 5;
+
+  const applyInterest = function(initial, years, interest){
+    return initial*(1.0+interest) ** years;
+  }
 
   const compoundSum = function (initial, years, interest) {
     let res = 0;
     for (let i = 0; i < years; i++) {
-      res += initial * (1.0+interest) ** (i);
+      // res += initial * (1.0+interest) ** (i);
+      res += (applyInterest(initial, years, interest));
     }
     return res;
   }
 
   const computeCashflow = function (vals) {
-    
-    vals.laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
-    vals.laborSavingsYear5 = compoundSum(vals.laborSavingsYear1, period, inflation)
-    
-    
-    vals.operationCost = 0.03 * vals.systemCost;
-    vals.cashflowYear1 = vals.laborSavingsYear1 - vals.operationCost - vals.systemCost;
 
-    const compoundOperationCosts = compoundSum(vals.operationCost, period, inflation);
-    vals.cashflowYear5 = vals.laborSavingsYear5 - compoundOperationCosts - vals.systemCost;
+    vals.roiData = [];
+
+    // vals.laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
+    // vals.laborSavingsYear5 = compoundSum(vals.laborSavingsYear1, period, inflation)
+    
+    
+    // vals.operationCost = 0.03 * vals.systemCost;
+    // vals.cashflowYear1 = vals.laborSavingsYear1 - vals.operationCost - vals.systemCost;
+
+    // const compoundOperationCosts = compoundSum(vals.operationCost, period, inflation);
+    // vals.cashflowYear5 = vals.laborSavingsYear5 - compoundOperationCosts - vals.systemCost;
   
+    let laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
+    let operatingCostsYear1 = 0.03*vals.systemCost;
+    let maintenanceCostsYear1 = 0.015*vals.systemCost;
+    let yearlyCashflowYear1 = laborSavingsYear1 - operatingCostsYear1 - maintenanceCostsYear1 - vals.systemCost;
 
-    console.log("labor savings: ", vals.laborSavings);
-    console.log("operation costs: ", vals.operationCost);
+    vals.roiData.push({
+      year: "1",
+      systemCosts: vals.systemCost,
+      maintenanceCosts: maintenanceCostsYear1,
+      operatingCosts: operatingCostsYear1,
+      laborSavings: laborSavingsYear1,
+      yearlyCashflow: yearlyCashflowYear1,
+      cumulativeCashflow: yearlyCashflowYear1
+    });
 
-    return vals.cashflowYear1;
+    if(cumulativeCashflowYear1 > 0){
+      vals.paybackPeriod = 12
+    }
+    
+    for (let i = 1; i < period; i++) {
+      const previousYearData = vals.roiData[i-1];
+      const operatingCostsThisYear = applyInterest(previousYearData.operatingCosts, 1, inflation);
+      const laborSavingsThisYear = applyInterest(previousYearData.laborSavings, 1, inflation)
+      const systemCostsThisYear = 0;
+      const maintenanceCostsThisYear = applyInterest(previousYearData.maintenanceCosts, 1, inflation);
+      const yearlyCashflowThisYear = laborSavingsThisYear - operatingCostsThisYear - systemCostsThisYear - maintenanceCostsThisYear;
+      vals.roiData.push({
+        year: (i+1),
+        systemCosts: 0,
+        maintenanceCosts: maintenanceCostsThisYear,
+        operatingCosts: operatingCostsThisYear,
+        laborSavings: laborSavingsThisYear,
+        yearlyCashflow: yearlyCashflowThisYear,
+        cumulativeCashflow: (previousYearData.cumulativeCashflow + yearlyCashflowThisYear)
+      })
+    }
+
+
+
+    // {row.year}</TableCell>
+    // {row.systemCosts}</Tab
+    // {row.maintenanceCosts}
+    // {row.operatingCosts}</
+    // {row.laborSavings}</Ta
+    // {row.yearlyCashflow}</
+    // {row.cumulativeCashflow
+
+
+    return vals.roiData;
 
   }
 
   const handleSubmit = (e) => {
 
-    const cost = computeCashflow(formValues);
+    const roiData = computeCashflow(formValues);
 
     const { name, value } = e.target;
     setFormValues({
@@ -153,19 +220,9 @@ function App() {
     
     visibilityState.roiResults = true;
 
-    console.log("cost is", cost)
-    console.log(formValues);
+    // console.log("roi data is", roiData)
+    // console.log(formValues);
   }
-
-  function formatAsCurrency(num) {
-    if(num>=0){
-      return '$' + num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
-    } else if(num<0){
-      return '-' + '$' + (-num).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
-    } else {
-      return ""
-    }
- }
 
   return (
     <React.Fragment>
@@ -211,7 +268,7 @@ function App() {
           </Grid>
         </Box> */}
 
-        <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(4, 1fr)' }}>
+        <Box color="text.secondary" sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(4, 1fr)' }}>
 
           {/* ----------------------------- */}
           {visibilityState.firstRow && <Grid id="first-row" container justify="flex-end" alignItems="center" spacing={1}>
@@ -576,12 +633,9 @@ function App() {
 
         <Divider />
 
+      </Container>
 
-        {/* <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(4, 1fr)' }}>
-
-          {/* ----------------------------- */}
-          {/* {visibilityState.firstRow && <Grid id="first-row" container justify="flex-end" alignItems="center" spacing={1}></Grid> */}
-
+      <Container maxWidth="md">
 
         {visibilityState.roiResults && <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(2, 1fr)' }}>
           <Grid container justify="flex-end" alignItems="center" spacing={1}>
@@ -589,7 +643,7 @@ function App() {
               <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
                 <Typography>Labor savings</Typography>
                 <Typography component="p" variant="h4" name="systemCostDisplay">
-                  {formatAsCurrency(formValues.laborSavingsYear1)}
+                  {formatAsCurrency(formValues.roiData[0].laborSavings)}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>in year 1</Typography>
               </Paper>
@@ -599,7 +653,7 @@ function App() {
               <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
                 <Typography>Labor savings</Typography>
                 <Typography component="p" variant="h4" name="systemCostDisplay">
-                  {formatAsCurrency(formValues.laborSavingsYear5)}
+                  {formatAsCurrency(formValues.roiData[4].laborSavings)}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>in first 5 years</Typography>
               </Paper>
@@ -611,7 +665,7 @@ function App() {
               <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
                 <Typography>Cashflow</Typography>
                 <Typography component="p" variant="h4" name="systemCostDisplay">
-                  {formatAsCurrency(formValues.cashflowYear1)}
+                  {formatAsCurrency(formValues.roiData[0].yearlyCashflow)}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>in year 1</Typography>
               </Paper>
@@ -621,12 +675,42 @@ function App() {
               <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
                 <Typography>Cumulative Cashflow</Typography>
                 <Typography component="p" variant="h4" name="systemCostDisplay">
-                  {formatAsCurrency(formValues.cashflowYear5)}
+                  {formatAsCurrency(formValues.roiData[4].cumulativeCashflow)}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>after 5 years</Typography>
               </Paper>
             </Grid>
           </Grid>
+
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Year</TableCell>
+                <TableCell>System Costs</TableCell>
+                <TableCell>Maintenance Costs</TableCell>
+                <TableCell>Operating Costs</TableCell>
+                <TableCell>Labor Savings</TableCell>
+                <TableCell>Yearly Cash Flow</TableCell>
+                <TableCell>Cumulative Cash Flow</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {formValues.roiData.map((row) => (
+                <TableRow>
+                  <TableCell>{row.year}</TableCell>
+                  <TableCell>{formatAsCurrency(row.systemCosts)}</TableCell>
+                  <TableCell>{formatAsCurrency(row.maintenanceCosts)}</TableCell>
+                  <TableCell>{formatAsCurrency(row.operatingCosts)}</TableCell>
+                  <TableCell>{formatAsCurrency(row.laborSavings)}</TableCell>
+                  <TableCell>{formatAsCurrency(row.yearlyCashflow)}</TableCell>
+                  <TableCell>{formatAsCurrency(row.cumulativeCashflow)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+
+
         </Box>}
 
 
