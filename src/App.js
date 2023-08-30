@@ -23,61 +23,42 @@ import Radio from "@mui/material/Radio";
 import Select from "@mui/material/Select";
 import Slider from "@mui/material/Slider";
 import Paper from '@mui/material/Paper';
+import Dialog from '@mui/material/Dialog';
+import ListItemText from '@mui/material/ListItemText';
+import ListItem from '@mui/material/ListItem';
+import List from '@mui/material/List';
+import CloseIcon from '@mui/icons-material/Close';
+import Slide from '@mui/material/Slide';
+import Divider from '@mui/material/Divider';
+import BottomNavigation from '@mui/material/BottomNavigation';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
-
-const mainTheme = createTheme({
-  // box: {
-  //   display: 'grid',
-  //   bgcolor: (theme) =>
-  //     theme.palette.mode === 'dark' ? '#101010' : 'grey.100',
-  //   color: (theme) =>
-  //     theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
-  //   border: '1px solid',
-  //   borderColor: (theme) =>
-  //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-  //   p: 1,
-  //   borderRadius: 2,
-  //   fontSize: '0.875rem',
-  //   fontWeight: '700',
-  // },
-  // container: {
-  //   display: "grid",
-  //   gridTemplateColumns: "repeat(12, 1fr)",
-  //   gridGap: `${theme.spacing.unit * 3}px`
-  // },
-  // paper: {
-  //   padding: theme.spacing.unit,
-  //   textAlign: "center",
-  //   color: theme.palette.text.secondary,
-  //   whiteSpace: "nowrap",
-  //   marginBottom: theme.spacing.unit
-  // },
-  // divider: {
-  //   margin: `${theme.spacing.unit * 2}px 0`
-  // }
-});
 
 const defaultValues = {
   partsPerHour: 1,
   shiftsPerDay: 2,
   daysPerWeek: 5,
-  weeksPerYear: 50,
+  weeksPerYear: 0,
   operatorPerShift: 1,
-  roi: 0,
   facilityType: "",
   facilityLocation: "us-midwest",
   whatIsProduced: "cars",
   whatIsUtilized: "robots",
-  operatorRate: 15,
-  operatorCount: 10,
+  operatorRate: 0,
+  operatorCount: 0,
   insurance: 0,
-  hiringCost: 10000,
-  systemCost: 150000
+  hiringCost: 0,
+  systemCost: 0,
+  laborSavingsYear1: 0,
+  laborSavingsYear5: 0,
+  operationCost: 0,
+  cashflowYear1: 0,
+  cashflowYear5: 0,
+  operationCost: 0
 };
 
-const visibilityState = {
+var visibilityState = {
   firstRow: true,
   secondRow: true,
   thirdRow: true,
@@ -86,13 +67,13 @@ const visibilityState = {
   sixthRow: true,
   seventhRow: true,
   eighthRow: true,
-  ninthRow: true,
-  tenthRow: true,
+  ninthRow: false,
+  tenthRow: false,
   eleventhRow: true,
   twelfthRow: true,
   buttonRow: true,
+  roiResults: false
 }
-
 
 function Copyright() {
   return (
@@ -112,12 +93,15 @@ function App() {
   const [formValues, setFormValues] = React.useState(defaultValues);
 
   const handleInputChange = (e) => {
+    
     // console.log("Input changed");
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
       [name]: value,
     });
+
+    visibilityState.roiResults = false;
 
     // visibilityState.secondRow = (formValues.facilityType != "" ? true : false);    
     // visibilityState.thirdRow = ( (formValues.whatIsProduced != "" && formValues.whatIsUtilized != "") ? true : false);
@@ -126,35 +110,62 @@ function App() {
     // console.log(formValues);
   };
 
+  const inflation = 0.02;
+  const period = 5;
 
-  const computeCashflow = function(operatorRate, 
-                                    operatorPerShift, 
-                                    shiftsPerDay, 
-                                    daysPerWeek, 
-                                    weeksPerYear,
-                                    systemCost){
-    const laborSavings = 8*operatorRate*operatorPerShift*shiftsPerDay*daysPerWeek*weeksPerYear;
-    console.log("labor savings: ", laborSavings);
-    const operationCost = 0.03*systemCost;
-    console.log("operation costs: ", operationCost);
-    const year1Cashflow = laborSavings-operationCost-systemCost;
-    console.log("year 1 cashflow: ", year1Cashflow);
-    return year1Cashflow;
+  const compoundSum = function (initial, years, interest) {
+    let res = 0;
+    for (let i = 0; i < years; i++) {
+      res += initial * (1.0+interest) ** (i);
+    }
+    return res;
+  }
+
+  const computeCashflow = function (vals) {
+    
+    vals.laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
+    vals.laborSavingsYear5 = compoundSum(vals.laborSavingsYear1, period, inflation)
+    
+    
+    vals.operationCost = 0.03 * vals.systemCost;
+    vals.cashflowYear1 = vals.laborSavingsYear1 - vals.operationCost - vals.systemCost;
+
+    const compoundOperationCosts = compoundSum(vals.operationCost, period, inflation);
+    vals.cashflowYear5 = vals.laborSavingsYear5 - compoundOperationCosts - vals.systemCost;
+  
+
+    console.log("labor savings: ", vals.laborSavings);
+    console.log("operation costs: ", vals.operationCost);
+
+    return vals.cashflowYear1;
 
   }
 
-  const handleSubmit = () => {
-    // formValues.roiValue = formValues.shiftsPerDay * formValues.partsPerHour;
-    const cost = computeCashflow(formValues.operatorRate,
-                                  formValues.operatorPerShift, 
-                                  formValues.shiftsPerDay, 
-                                  formValues.daysPerWeek, 
-                                  formValues.weeksPerYear,
-                                  formValues.systemCost);
+  const handleSubmit = (e) => {
+
+    const cost = computeCashflow(formValues);
+
+    const { name, value } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: value,
+    });
     
+    visibilityState.roiResults = true;
+
     console.log("cost is", cost)
     console.log(formValues);
   }
+
+  function formatAsCurrency(num) {
+    if(num>=0){
+      return '$' + num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    } else if(num<0){
+      return '-' + '$' + (-num).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    } else {
+      return ""
+    }
+ }
 
   return (
     <React.Fragment>
@@ -189,6 +200,8 @@ function App() {
             Answer the questions below to generate an ROI estimate for your automation project
           </Typography>
         </Grid>
+
+        <Divider />
 
         {/* <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(1, 1fr)' }}>
           <Grid>
@@ -387,17 +400,11 @@ function App() {
           </Grid>}
 
           {/* ----------------------------- */}
-          {visibilityState.sixthRow &&<Grid id="sixth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.sixthRow && <Grid id="sixth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
-            <Grid item xs={5.5}>
+            <Grid item xs={9}>
               <Typography>
-                The hourly rate of an operator is
-              </Typography>
-            </Grid>
-
-            <Grid item xs={0.5}>
-              <Typography>
-                $
+                The hourly rate of an operator, including benefits, is $
               </Typography>
             </Grid>
 
@@ -411,7 +418,7 @@ function App() {
               />
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={1.5}>
               <Typography>
                 / hour.
               </Typography>
@@ -419,7 +426,7 @@ function App() {
           </Grid>}
 
           {/* ----------------------------- */}
-          {visibilityState.seventhRow &&<Grid id="seventh-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.seventhRow && <Grid id="seventh-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={3}>
               <Typography>
@@ -445,7 +452,7 @@ function App() {
           </Grid>}
 
           {/* ----------------------------- */}
-          {visibilityState.eighthRow &&<Grid id="eighth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.eighthRow && <Grid id="eighth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={3.5}>
               <Typography>
@@ -481,7 +488,7 @@ function App() {
           </Grid>}
 
           {/* ----------------------------- */}
-          {visibilityState.ninthRow &&<Grid id="ninth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.ninthRow && <Grid id="ninth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={10}>
               <Typography>
@@ -490,7 +497,7 @@ function App() {
             </Grid>
           </Grid>}
 
-          {visibilityState.tenthRow &&<Grid id="tenth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.tenthRow && <Grid id="tenth-row" container justify="flex-end" alignItems="center" spacing={1}>
             <Grid item xs={2}>
               <TextField
                 name="insurance"
@@ -503,13 +510,13 @@ function App() {
 
             <Grid item xs={3}>
               <Typography>
-                /year.
+                / year.
               </Typography>
             </Grid>
           </Grid>}
 
           {/* ----------------------------- */}
-          {visibilityState.eleventhRow &&<Grid id="eleventh-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.eleventhRow && <Grid id="eleventh-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={4}>
               <Typography>
@@ -533,7 +540,7 @@ function App() {
           </Grid>}
 
           {/* ----------------------------- */}
-          {visibilityState.twelfthRow &&<Grid id="twelfth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.twelfthRow && <Grid id="twelfth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={7.2}>
               <Typography>
@@ -559,14 +566,72 @@ function App() {
 
         </Box>
 
-        {visibilityState.buttonRow &&<Grid align="center" margin={4}>
+        <Divider />
+
+        {visibilityState.buttonRow && <Grid align="center" margin={4}>
           <Button variant="contained" size="small" color="primary" type="submit" onClick={handleSubmit}>
             Get ROI Results
           </Button>
         </Grid>}
 
+        <Divider />
+
+
+        {/* <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(4, 1fr)' }}>
+
+          {/* ----------------------------- */}
+          {/* {visibilityState.firstRow && <Grid id="first-row" container justify="flex-end" alignItems="center" spacing={1}></Grid> */}
+
+
+        {visibilityState.roiResults && <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(2, 1fr)' }}>
+          <Grid container justify="flex-end" alignItems="center" spacing={1}>
+            <Grid item xs={6}>
+              <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
+                <Typography>Labor savings</Typography>
+                <Typography component="p" variant="h4" name="systemCostDisplay">
+                  {formatAsCurrency(formValues.laborSavingsYear1)}
+                </Typography>
+                <Typography color="text.secondary" sx={{ flex: 1 }}>in year 1</Typography>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
+                <Typography>Labor savings</Typography>
+                <Typography component="p" variant="h4" name="systemCostDisplay">
+                  {formatAsCurrency(formValues.laborSavingsYear5)}
+                </Typography>
+                <Typography color="text.secondary" sx={{ flex: 1 }}>in first 5 years</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          <Grid container justify="flex-end" alignItems="center" spacing={1}>
+            <Grid item xs={6}>
+              <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
+                <Typography>Cashflow</Typography>
+                <Typography component="p" variant="h4" name="systemCostDisplay">
+                  {formatAsCurrency(formValues.cashflowYear1)}
+                </Typography>
+                <Typography color="text.secondary" sx={{ flex: 1 }}>in year 1</Typography>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
+                <Typography>Cumulative Cashflow</Typography>
+                <Typography component="p" variant="h4" name="systemCostDisplay">
+                  {formatAsCurrency(formValues.cashflowYear5)}
+                </Typography>
+                <Typography color="text.secondary" sx={{ flex: 1 }}>after 5 years</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>}
+
+
         <Grid align="center" margin={4}>
-          <Copyright />
+          <Copyright/>
         </Grid>
 
       </Container>
