@@ -27,7 +27,7 @@ import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
 
-const mainTheme = createTheme ({
+const mainTheme = createTheme({
   // box: {
   //   display: 'grid',
   //   bgcolor: (theme) =>
@@ -62,17 +62,36 @@ const mainTheme = createTheme ({
 const defaultValues = {
   partsPerHour: 1,
   shiftsPerDay: 2,
+  daysPerWeek: 5,
+  weeksPerYear: 50,
   operatorPerShift: 1,
   roi: 0,
-  facilityType: "automotive",
+  facilityType: "",
   facilityLocation: "us-midwest",
   whatIsProduced: "cars",
   whatIsUtilized: "robots",
   operatorRate: 15,
   operatorCount: 10,
   insurance: 0,
-  hiringCost: 10000
+  hiringCost: 10000,
+  systemCost: 150000
 };
+
+const visibilityState = {
+  firstRow: true,
+  secondRow: true,
+  thirdRow: true,
+  fourthRow: true,
+  fifthRow: true,
+  sixthRow: true,
+  seventhRow: true,
+  eighthRow: true,
+  ninthRow: true,
+  tenthRow: true,
+  eleventhRow: true,
+  twelfthRow: true,
+  buttonRow: true,
+}
 
 
 function Copyright() {
@@ -89,9 +108,9 @@ function Copyright() {
 }
 
 function App() {
-  
+
   const [formValues, setFormValues] = React.useState(defaultValues);
-  
+
   const handleInputChange = (e) => {
     // console.log("Input changed");
     const { name, value } = e.target;
@@ -99,30 +118,91 @@ function App() {
       ...formValues,
       [name]: value,
     });
+
+    // visibilityState.secondRow = (formValues.facilityType != "" ? true : false);    
+    // visibilityState.thirdRow = ( (formValues.whatIsProduced != "" && formValues.whatIsUtilized != "") ? true : false);
+    // visibilityState.fourthRow = (defaultValues.shiftsPerDay == "" ? false : true);
+
     // console.log(formValues);
   };
 
+
+  const computeCashflow = function(operatorRate, 
+                                    operatorPerShift, 
+                                    shiftsPerDay, 
+                                    daysPerWeek, 
+                                    weeksPerYear,
+                                    systemCost){
+    const laborSavings = 8*operatorRate*operatorPerShift*shiftsPerDay*daysPerWeek*weeksPerYear;
+    console.log("labor savings: ", laborSavings);
+    const operationCost = 0.03*systemCost;
+    console.log("operation costs: ", operationCost);
+    const year1Cashflow = laborSavings-operationCost-systemCost;
+    console.log("year 1 cashflow: ", year1Cashflow);
+    return year1Cashflow;
+
+  }
+
   const handleSubmit = () => {
-    formValues.roiValue = formValues.shiftsPerDay*formValues.partsPerHour;
-    console.log("ROI is", formValues.roiValue)
+    // formValues.roiValue = formValues.shiftsPerDay * formValues.partsPerHour;
+    const cost = computeCashflow(formValues.operatorRate,
+                                  formValues.operatorPerShift, 
+                                  formValues.shiftsPerDay, 
+                                  formValues.daysPerWeek, 
+                                  formValues.weeksPerYear,
+                                  formValues.systemCost);
+    
+    console.log("cost is", cost)
     console.log(formValues);
   }
 
   return (
     <React.Fragment>
-      
+
       <CssBaseline />
       <Container maxWidth="sm">
 
-        <Typography variant="h4" color="initial" align="center">
-          AutoCanvas ROI Calculator
-        </Typography>
+        <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(1, 1fr)' }}>
+          <Grid align="center">
+            <Box
+              component="img"
+              sx={{
+                // height: 100,
+                width: 300,
+                // maxHeight: { xs: 233, md: 167 },
+                // maxWidth: { xs: 350, md: 250 },
+              }}
+              alt="Reshape logo"
+              src="https://img1.wsimg.com/isteam/ip/db523e1b-fe31-4794-bf6c-94aee0354d70/LogoDefault%20(1).png"
+            />
+          </Grid>
+        </Box>
+
+        <Grid>
+          <Typography variant="h5" color="initial" align="center">
+            Automation ROI Calculator
+          </Typography>
+        </Grid>
+
+        <Grid>
+          <Typography variant="body1" color="text.secondary" align="center">
+            Answer the questions below to generate an ROI estimate for your automation project
+          </Typography>
+        </Grid>
+
+        {/* <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(1, 1fr)' }}>
+          <Grid>
+            <Typography variant="h5" color="initial" align="left">
+              1. Current Costs
+            </Typography>
+          </Grid>
+        </Box> */}
 
         <Box sx={{ display: 'grid', gap: 1, margin: 2, gridTemplateRows: 'repeat(4, 1fr)' }}>
-          
+
           {/* ----------------------------- */}
-          <Grid id="first-row" container justify="flex-end" alignItems="center" spacing={1}>
-              
+          {visibilityState.firstRow && <Grid id="first-row" container justify="flex-end" alignItems="center" spacing={1}>
+
             <Grid item xs={3}>
               <Typography>
                 I have a tier 1
@@ -136,39 +216,29 @@ function App() {
                   value={formValues.facilityType}
                   onChange={handleInputChange}
                 >
-                  <MenuItem key="automotive" value="automotive">
-                    Automotive
-                  </MenuItem>
-                  <MenuItem key="plastic" value="plastic">
-                    Plastic
-                  </MenuItem>
-                  <MenuItem key="metal " value="metal">
-                    Metal
-                  </MenuItem>
+                  <MenuItem key="automotive" value="automotive">Automotive</MenuItem>
+                  <MenuItem key="plastic" value="plastic">Plastic</MenuItem>
+                  <MenuItem key="metal " value="metal">Metal</MenuItem>
                 </Select>
               </FormControl>
-              
+
             </Grid>
 
             <Grid item xs={4}>
-              <Typography>
-                facility
-              </Typography>
+              <Typography>facility</Typography>
             </Grid>
 
-          </Grid>
+          </Grid>}
 
           {/* <Grid>
             <Container size="small"/>
           </Grid> */}
 
           {/* ----------------------------- */}
-          <Grid id="second-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.secondRow && <Grid id="second-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={3}>
-              <Typography>
-                that produces
-              </Typography>
+              <Typography>that produces</Typography>
             </Grid>
 
             <Grid item xs={3}>
@@ -181,36 +251,29 @@ function App() {
             </Grid>
 
             <Grid item xs={2}>
-              <Typography>
-                utilizing
-              </Typography>
+              <Typography>utilizing</Typography>
             </Grid>
 
             <Grid item xs={3}>
               <TextField
                 name="whatIsUtilized"
                 variant="standard"
-                
                 onChange={handleInputChange}
                 size="small"
               />
             </Grid>
 
             <Grid item xs={1}>
-              <Typography>
-                .
-              </Typography>
+              <Typography>.</Typography>
             </Grid>
-            
-          </Grid>
+
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="third-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.thirdRow && <Grid id="third-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={2}>
-              <Typography>
-                I produce
-              </Typography>
+              <Typography>I produce</Typography>
             </Grid>
 
             <Grid item xs={1}>
@@ -224,19 +287,15 @@ function App() {
             </Grid>
 
             <Grid item xs={3}>
-              <Typography>
-                parts per hour.
-              </Typography>
+              <Typography>parts per hour.</Typography>
             </Grid>
-          </Grid>          
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="fourth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.fourthRow && <Grid id="fourth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={1}>
-              <Typography>
-                I run
-              </Typography>
+              <Typography>I run</Typography>
             </Grid>
 
             <Grid item xs={1}>
@@ -247,33 +306,60 @@ function App() {
                   value={formValues.shiftsPerDay}
                   onChange={handleInputChange}
                 >
-                  <MenuItem key="one" value="1">
-                    1
-                  </MenuItem>
-                  <MenuItem key="two" value="2">
-                    2
-                  </MenuItem>
-                  <MenuItem key="three" value="3">
-                    3
-                  </MenuItem>
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
             <Grid item xs={2}>
-              <Typography>
-                shifts.
-              </Typography>
+              <Typography>shifts/day,</Typography>
             </Grid>
-          </Grid>
+
+            <Grid item xs={1}>
+
+              <FormControl size="small" variant="standard">
+                <Select
+                  name="daysPerWeek"
+                  value={formValues.daysPerWeek}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="4">4</MenuItem>
+                  <MenuItem value="5">5</MenuItem>
+                  <MenuItem value="6">6</MenuItem>
+                  <MenuItem value="7">7</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={2.5}>
+              <Typography>days/week, </Typography>
+            </Grid>
+
+            <Grid item xs={1}>
+              <TextField
+                name="weeksPerYear"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <Typography>weeks/year.</Typography>
+            </Grid>
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="fifth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.fifthRow && <Grid id="fifth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
-            <Grid item xs={3.5}>
-              <Typography>
-                This task requires
-              </Typography>
+            <Grid item xs={5}>
+              <Typography>This task currently requires</Typography>
             </Grid>
 
             <Grid item xs={1.5}>
@@ -284,18 +370,11 @@ function App() {
                   value={formValues.operatorPerShift}
                   onChange={handleInputChange}
                 >
-                  <MenuItem key="one" value="1">
-                    1
-                  </MenuItem>
-                  <MenuItem key="two" value="2">
-                    2
-                  </MenuItem>
-                  <MenuItem key="three" value="3">
-                    3
-                  </MenuItem>
-                  <MenuItem key="four" value="4">
-                    4
-                  </MenuItem>
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="4">4</MenuItem>
+                  <MenuItem value="5">5</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -305,14 +384,14 @@ function App() {
                 operator(s) per shifts.
               </Typography>
             </Grid>
-          </Grid>
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="sixth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.sixthRow &&<Grid id="sixth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={5.5}>
               <Typography>
-                The hourly rate of operators is
+                The hourly rate of an operator is
               </Typography>
             </Grid>
 
@@ -321,7 +400,7 @@ function App() {
                 $
               </Typography>
             </Grid>
-            
+
             <Grid item xs={1}>
               <TextField
                 name="operatorRate"
@@ -337,10 +416,10 @@ function App() {
                 / hour.
               </Typography>
             </Grid>
-          </Grid> 
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="seventh-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.seventhRow &&<Grid id="seventh-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={3}>
               <Typography>
@@ -363,11 +442,11 @@ function App() {
                 operators.
               </Typography>
             </Grid>
-          </Grid> 
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="eighth-row" container justify="flex-end" alignItems="center" spacing={1}>
-              
+          {visibilityState.eighthRow &&<Grid id="eighth-row" container justify="flex-end" alignItems="center" spacing={1}>
+
             <Grid item xs={3.5}>
               <Typography>
                 My facility is in the
@@ -393,24 +472,25 @@ function App() {
                   <MenuItem key="us-west" value="us-west">
                     US West Coast
                   </MenuItem>
-                  
+
                 </Select>
               </FormControl>
-              
+
             </Grid>
 
-          </Grid>
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="ninth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.ninthRow &&<Grid id="ninth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={10}>
               <Typography>
-                My OH&S, insurance, sick leave and other alternative personnel costs are approximately 
+                My OH&S, insurance, sick leave and other alternative personnel costs are approximately
               </Typography>
             </Grid>
-          </Grid>
-          <Grid id="tenth-row" container justify="flex-end" alignItems="center" spacing={1}>
+          </Grid>}
+
+          {visibilityState.tenthRow &&<Grid id="tenth-row" container justify="flex-end" alignItems="center" spacing={1}>
             <Grid item xs={2}>
               <TextField
                 name="insurance"
@@ -426,10 +506,10 @@ function App() {
                 /year.
               </Typography>
             </Grid>
-          </Grid> 
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="eleventh-row" container justify="flex-end" alignItems="center" spacing={1}>
+          {visibilityState.eleventhRow &&<Grid id="eleventh-row" container justify="flex-end" alignItems="center" spacing={1}>
 
             <Grid item xs={4}>
               <Typography>
@@ -448,185 +528,53 @@ function App() {
             </Grid>
 
             <Grid item xs={3}>
-              <Typography>
-                / year.
-              </Typography>
+              <Typography>/ year.</Typography>
             </Grid>
-          </Grid> 
+          </Grid>}
 
           {/* ----------------------------- */}
-          <Grid id="last-row" container spacing={1}>
-            <Grid item xs justify="flex-end" alignItems="center" align="center" >
-              <Button variant="contained" size="small" color="primary" type="submit" onClick={handleSubmit}>
-              Get ROI Results
-              </Button>
-            </Grid>
-          
+          {visibilityState.twelfthRow &&<Grid id="twelfth-row" container justify="flex-end" alignItems="center" spacing={1}>
 
-          </Grid>
-          
+            <Grid item xs={7.2}>
+              <Typography>
+                The estimated cost of the new system is $
+              </Typography>
+            </Grid>
+
+            <Grid item xs={2}>
+              <TextField
+                name="systemCost"
+                variant="standard"
+                type="number"
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={1}>
+              <Typography>.</Typography>
+            </Grid>
+          </Grid>}
+
 
         </Box>
 
-        <Copyright />
+        {visibilityState.buttonRow &&<Grid align="center" margin={4}>
+          <Button variant="contained" size="small" color="primary" type="submit" onClick={handleSubmit}>
+            Get ROI Results
+          </Button>
+        </Grid>}
+
+        <Grid align="center" margin={4}>
+          <Copyright />
+        </Grid>
 
       </Container>
-      
+
     </React.Fragment>
   );
-
-
-//   return (    
-//     <Container maxWidth="md">
-//       <Box sx={{ my: 4 }}>
-
-//         <Typography variant="h3" color="text.primary" align="center">
-//           AutoCanvas ROI Calculator
-//         </Typography>
-        
-        
-//           <TextField 
-//             id="parts-per-hour-input"
-//             name="partsPerHour"
-//             label="Parts per hour"
-//             type="number"
-//             value={formValues.partsPerHour}
-//             onChange={handleInputChange}
-//           />
-        
-//           <TextField
-//             id="shifts-input"
-//             name="shiftsPerDay"
-//             label="Shifts per day"
-//             type="number"
-//             value={formValues.shiftsPerDay}
-//             onChange={handleInputChange}
-//           />
-        
-// {/* 
-//           <FormControl>
-//             <Select
-//               name="os"
-//               value={formValues.os}
-//               onChange={handleInputChange}
-//             >
-//               <MenuItem key="mac" value="mac">
-//                 Mac
-//               </MenuItem>
-//               <MenuItem key="windows" value="windows">
-//                 Windows
-//               </MenuItem>
-//               <MenuItem key="linux " value="linux">
-//                 Linux
-//               </MenuItem>
-//             </Select>
-//           </FormControl> */}
-       
-        
-//         <Button variant="contained" color="primary" type="submit" onClick={handleSubmit}>
-//           Get ROI Results
-//         </Button>
-
-//         <TextField
-//           id="roi-output"
-//           name="roi"
-//           label="ROI"
-//           type="number"
-//           value={formValues.roi}
-//           onChange={handleInputChange}
-//         />
-
-        
-
-//         <ProTip />
-//         <Copyright />
-//       </Box>
-//     </Container>
-//   );
-
-  
 }
 
 export default App;
 
 
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// I have a tier 1
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// facility that produces
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// utilizing
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// I produce
-// </Typography>
-
-
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// parts/hour.
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// I run
-// </Typography>
-
-// <ShiftsPerDaySelect onShiftsChange={handleShiftsChange} />
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// Multiplied Shifts: {shiftsResult}
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// shifts.
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// This task requires
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// operator per shift.
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// The hourly rate of operators is
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// /hr
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// My facility has
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// operators.
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// My facility is in
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// My OH&S, insurance, sick leave and other alternative personnel costs are approximately
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// /year.
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// My HR/hiring costs are
-// </Typography>
-
-// <Typography variant="body1" color="text.secondary" align="left">
-// /year
-// </Typography>
