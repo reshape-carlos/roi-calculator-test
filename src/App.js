@@ -127,7 +127,7 @@ function App() {
  }
 
   const inflation = 0.02;
-  const period = 5;
+  const period = 10;
 
   const applyInterest = function(initial, years, interest){
     return initial*(1.0+interest) ** years;
@@ -145,11 +145,16 @@ function App() {
   const computeCashflow = function (vals) {
 
     vals.roiData = [];
+    vals.paybackPeriod = -1;
   
     let laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
     let operatingCostsYear1 = 0.03*vals.systemCost;
     let maintenanceCostsYear1 = 0.015*vals.systemCost;
     let yearlyCashflowYear1 = laborSavingsYear1 - operatingCostsYear1 - maintenanceCostsYear1 - vals.systemCost;
+
+    if(yearlyCashflowYear1 > 0){
+      vals.paybackPeriod = (12.0*(operatingCostsYear1 + maintenanceCostsYear1 + Number(vals.systemCost))/laborSavingsYear1).toFixed(0);
+    }
 
     vals.roiData.push({
       year: "1",
@@ -160,10 +165,6 @@ function App() {
       yearlyCashflow: yearlyCashflowYear1,
       cumulativeCashflow: yearlyCashflowYear1
     });
-
-    if(yearlyCashflowYear1 > 0){
-      vals.paybackPeriod = 12*(operatingCostsYear1 + maintenanceCostsYear1 + vals.systemCost)/laborSavingsYear1;
-    }
     
     for (let i = 1; i < period; i++) {
       const previousYearData = vals.roiData[i-1];
@@ -181,6 +182,10 @@ function App() {
         yearlyCashflow: yearlyCashflowThisYear,
         cumulativeCashflow: (previousYearData.cumulativeCashflow + yearlyCashflowThisYear)
       })
+
+      if(previousYearData.cumulativeCashflow < 0 && yearlyCashflowThisYear >= 0){
+        vals.paybackPeriod = (12*i + -12*previousYearData.cumulativeCashflow/yearlyCashflowThisYear).toFixed(0);
+      }
     }
 
     return vals.roiData;
@@ -630,11 +635,11 @@ function App() {
 
             <Grid item xs={6}>
               <Paper sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems:"center"}}>
-                <Typography>Labor savings</Typography>
+                <Typography>Payback Period</Typography>
                 <Typography component="p" variant="h4" name="systemCostDisplay">
-                  {formatAsCurrency(formValues.roiData[4].laborSavings)}
+                  {formValues.paybackPeriod == -1? ">120" : formValues.paybackPeriod}
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>in first 5 years</Typography>
+                <Typography color="text.secondary" sx={{ flex: 1 }}>months</Typography>
               </Paper>
             </Grid>
           </Grid>
