@@ -145,16 +145,6 @@ function App() {
   const computeCashflow = function (vals) {
 
     vals.roiData = [];
-
-    // vals.laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
-    // vals.laborSavingsYear5 = compoundSum(vals.laborSavingsYear1, period, inflation)
-    
-    
-    // vals.operationCost = 0.03 * vals.systemCost;
-    // vals.cashflowYear1 = vals.laborSavingsYear1 - vals.operationCost - vals.systemCost;
-
-    // const compoundOperationCosts = compoundSum(vals.operationCost, period, inflation);
-    // vals.cashflowYear5 = vals.laborSavingsYear5 - compoundOperationCosts - vals.systemCost;
   
     let laborSavingsYear1 = 8 * vals.operatorRate * vals.operatorPerShift * vals.shiftsPerDay * vals.daysPerWeek * vals.weeksPerYear;
     let operatingCostsYear1 = 0.03*vals.systemCost;
@@ -171,8 +161,8 @@ function App() {
       cumulativeCashflow: yearlyCashflowYear1
     });
 
-    if(cumulativeCashflowYear1 > 0){
-      vals.paybackPeriod = 12
+    if(yearlyCashflowYear1 > 0){
+      vals.paybackPeriod = 12*(operatingCostsYear1 + maintenanceCostsYear1 + vals.systemCost)/laborSavingsYear1;
     }
     
     for (let i = 1; i < period; i++) {
@@ -192,17 +182,6 @@ function App() {
         cumulativeCashflow: (previousYearData.cumulativeCashflow + yearlyCashflowThisYear)
       })
     }
-
-
-
-    // {row.year}</TableCell>
-    // {row.systemCosts}</Tab
-    // {row.maintenanceCosts}
-    // {row.operatingCosts}</
-    // {row.laborSavings}</Ta
-    // {row.yearlyCashflow}</
-    // {row.cumulativeCashflow
-
 
     return vals.roiData;
 
